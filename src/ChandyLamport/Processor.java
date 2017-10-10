@@ -16,9 +16,8 @@ import java.util.Observer;
  * @version 1.0
  */
 
-
 public class Processor implements Observer {
-
+	private int messageCount = 0;
     List<Buffer> inChannels = new ArrayList<>();
     /**
      * List of output channels
@@ -43,8 +42,16 @@ public class Processor implements Observer {
     /**
      * @param id of the processor
      */
+    private int id;
+    
+    public int getMessageCount() {
+    		return this.messageCount;
+    }
+    
     public Processor(int id, List<Buffer> inChannels, List<Buffer> outChannels) {
+    		this.id = id;
     		channelMarkerCount = new HashMap<Buffer,Integer>();
+    		channelState = new HashMap<Buffer, List<Message>>();
         this.inChannels = inChannels;
         this.outChannels = outChannels;
         //TODO: Homework make this processor as the observer for each of its inChannel
@@ -56,6 +63,9 @@ public class Processor implements Observer {
         init();
     }
 
+    public int getId() {
+    		return this.id;
+    }
     public void init() {
     		for(Buffer c: inChannels) {
     			channelMarkerCount.put(c, 0);
@@ -69,6 +79,7 @@ public class Processor implements Observer {
         System.out.println("Recording my registers...");
         System.out.println("Recording my program counters...");
         System.out.println("Recording my local variables...");
+        System.out.println("Processor" +id +"'s message count: " + messageCount);
     }
 
     /**
@@ -92,16 +103,12 @@ public class Processor implements Observer {
      * @param channel The input channel which has to be monitored
      */
 
-    	public void stopChannel(Buffer channel) {
-    		channel.deleteObserver(this);
-    	}
-    	
     public void recordChannel(Buffer channel) {
         //Here print the value stored in the inChannels to stdout or file
         //TODO:Homework: Channel will have messages from before a marker has arrived. Record messages only after a
         //               marker has arrived.
         //               [hint: Use the getTotalMessageCount () method to get the messages received so far.
-        int lastIdx = channel.getTotalMessageCount();
+    		int lastIdx = channel.getTotalMessageCount();
         List<Message> recordedMessagesSinceMarker = new ArrayList<>();
         List<Message> channelMessages = channel.getMessages();
         for(int i = lastIdx+1; i<channelMessages.size(); i++) {
@@ -111,14 +118,14 @@ public class Processor implements Observer {
 	        	}
         }
         channelState.put(channel, recordedMessagesSinceMarker);
-            //TODO: Homework: Record messages
-            // [Hint: Get the array that is storing the messages from the channel. Remember that the Buffer class
-            // has a member     private List<Message> messages;  which stores all the messages received.
-            // When a marker has arrived sample this List of messages and copy only those messages that
-            // are received since the marker arrived. Copy these messages into recordedMessagesSinceMarker
-            // and put it in the channelState map.
-            //
-            // ]
+        //TODO: Homework: Record messages
+        // [Hint: Get the array that is storing the messages from the channel. Remember that the Buffer class
+        // has a member     private List<Message> messages;  which stores all the messages received.
+        // When a marker has arrived sample this List of messages and copy only those messages that
+        // are received since the marker arrived. Copy these messages into recordedMessagesSinceMarker
+        // and put it in the channelState map.
+        //
+        // ]
     }
 
     /**
@@ -128,11 +135,9 @@ public class Processor implements Observer {
      *
      * @param message Message to be sent
      */
-    public void sendMessgeTo(Message message, Buffer channel) {
-        channel.saveMessage(message);
-
+    public void sendMessageTo(Message message, Buffer channel) {
+		channel.saveMessage(message);
     }
-
     /**
      *
      * @param fromChannel channel where marker has arrived
@@ -141,8 +146,10 @@ public class Processor implements Observer {
     public boolean isFirstMarker(Buffer fromChannel) {
     		int count = channelMarkerCount.get(fromChannel);
     		if(count==1) {
+    			System.out.println("This is a first marker on " + fromChannel.getLabel());
     			return true; 
     		} else{
+    			System.out.println("This is NOT THE first marker on " + fromChannel.getLabel());
     			return false;
     		}
         //TODO: Implement this method
@@ -157,6 +164,9 @@ public class Processor implements Observer {
     		Message message = (Message) arg;
         Processor sender = message.getFrom();
         Buffer fromChannel = (Buffer) observable;
+        if(!message.getMessageType().equals(MessageType.MARKER)) {
+        		messageCount++;
+        }
         if (message.getMessageType().equals(MessageType.MARKER)) {
             //TODO: homework Record from Channel as Empty
             recordChannelAsEmpty(fromChannel);
@@ -185,7 +195,7 @@ public class Processor implements Observer {
             // Hint: invoke  sendMessgeTo((Message) arg, outChannel) for each of the out channels
             for(Buffer c : outChannels) {
 	        		Message m = new Message(MessageType.MARKER);
-	        		sendMessgeTo(m, c);
+	        		sendMessageTo(m, c);
 	        }
         }
         else{
@@ -193,19 +203,23 @@ public class Processor implements Observer {
                 System.out.println("Processing Algorithm message....");
             }  //There is no other type
         }
-
-
     }
 
+
+	public void stopChannel(Buffer channel) {
+		System.out.println("Stopping " + channel.getLabel());
+		inChannels.remove(channel);
+		channel.deleteObserver(this);
+	}
+	
     public void initiateSnapShot() {
         recordMyCurrentState();
         //TODO: Follow steps from Chandy Lamport algorithm. Send out a marker message on outgoing channel
         //[Hint: Use the sendMessgeTo method 
         for(Buffer c : outChannels) {
         		Message m = new Message(MessageType.MARKER);
-        		sendMessgeTo(m, c);
+        		sendMessageTo(m, c);
         }
-
         //TODO: homework Start recording on each of the input channels
         for(Buffer c : inChannels) {
     			recordChannel(c);

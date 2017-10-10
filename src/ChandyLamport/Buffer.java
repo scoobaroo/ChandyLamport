@@ -13,7 +13,7 @@ import java.util.Observable;
  */
 //A channel should have a buffer associated with it.
 public class Buffer extends Observable {
-    String label;
+    private String label;
     private List<Message> messages;
 
     /**
@@ -23,8 +23,8 @@ public class Buffer extends Observable {
         this.messages = new ArrayList<>();
     }
     
-    public List<Message> getMessages(){
-    		return this.messages;
+    public List<Message> getMessages(){	
+		return this.messages;
     }
     /**
      * Creates empty buffer
@@ -42,7 +42,7 @@ public class Buffer extends Observable {
      * @return Message from the buffer
      */
     public Message getMessage(int index) {
-        return messages.get(index);
+		return messages.get(index);
     }
     /**
      * Sets the message and notifies the observers with the sender node's information

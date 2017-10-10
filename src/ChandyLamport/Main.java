@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class Main {
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws InterruptedException {
 
         //Channels from P3 to P1 and P2 to P1
         Buffer channelP31 = new Buffer("channel C31");
@@ -46,8 +46,8 @@ public class Main {
         inChannelsP3.add(channelP23);
         List<Buffer> outChannelsP3 = new ArrayList<>();
         outChannelsP3.add(channelP31);
-        outChannelsP2.add(channelP32);
-        Processor processor3 = new Processor(3, inChannelsP2, outChannelsP2); //Only observes in channels.
+        outChannelsP3.add(channelP32);
+        Processor processor3 = new Processor(3, inChannelsP3, outChannelsP3); //Only observes in channels.
 
         /**
          * Choose one processor to initiale a snapshot. Please note that any processor has the capability to
@@ -56,16 +56,12 @@ public class Main {
          * [Hint: call the initiateSnapshot method ]
          */
 
-        processor1.initiateSnapShot();
         Algorithm a = new Algorithm(processor1, processor2, processor3);
-        try {
-			a.executionPlan1();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+        a.executionPlanP1();
+		a.executionPlanP2();
+		a.executionPlanP3();
+        processor1.initiateSnapShot();
+        System.out.println("Processor2's message count: " + processor2.getMessageCount());
+        System.out.println("Processor3's message count: " + processor3.getMessageCount());
     }
-
-
 }
