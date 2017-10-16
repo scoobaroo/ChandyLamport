@@ -71,7 +71,6 @@ public class Main {
         		processor2.start();
             processor3.start();
         		processor1.start();
-			
 			processor2.join();
 	        processor3.join();
 	        processor1.join();
