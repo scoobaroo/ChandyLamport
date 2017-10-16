@@ -1,29 +1,36 @@
 package ChandyLamport;
 
-
-
+/**
+ * 
+Message: This class simulates a message that is being passed between processors in the system
+ * @author Mayuri Wadkar
+ *
+ */
 public class Message {
 	MessageType messageType;
+	Processor from; //sender Processor
+	public Message(MessageType mt) {
+		this.messageType = mt;
+	}
 
-	/**
-	 * THe processor that is sending a message
-	 * @return
-	 */
+	public Message(MessageType mt, Processor from) {
+		this.messageType=mt;
+		this.from = from;
+	}
+	
 	public Processor getFrom() {
 		return from;
 	}
-
 	public void setFrom(Processor from) {
 		this.from = from;
 	}
-
-	Processor from; //source
 	
-	public Message(MessageType mt) {
-		this.messageType=mt;
-	}
-
 	public MessageType getMessageType() {
 		return messageType;
+	}
+	
+	@Override
+	public String toString() {
+		return this.messageType.toString();
 	}
 }

@@ -1,6 +1,5 @@
 package ChandyLamport;
 
-
 /**
  * This is the simulation of a main algorithm that will run on processors P1, P2, P3
  * This could be a banking application, payroll application or any other distributed application
@@ -40,6 +39,7 @@ public class Algorithm {
         		compute(processor1);
         		Thread.sleep(200);
         }
+        
     }
 
     public void executionPlanP2() {
@@ -49,7 +49,7 @@ public class Algorithm {
         compute(processor2);
 		for (Buffer c : processor2.outChannels) {
 			processor2.sendMessageTo(new Message(MessageType.ALGORITHM), c);
-			processor2.sendMessageTo(new Message(MessageType.COMPUTATION), c);
+			processor2.sendMessageTo(new Message(MessageType.COMPUTE), c);
 			processor2.sendMessageTo(new Message(MessageType.RECEIVE), c);
 			processor2.sendMessageTo(new Message(MessageType.SEND), c);
 		}
@@ -64,7 +64,7 @@ public class Algorithm {
 			processor3.sendMessageTo(new Message(MessageType.ALGORITHM), c);
 			processor3.sendMessageTo(new Message(MessageType.SEND), c);
 			processor3.sendMessageTo(new Message(MessageType.RECEIVE), c);
-			processor3.sendMessageTo(new Message(MessageType.COMPUTATION), c);
+			processor3.sendMessageTo(new Message(MessageType.COMPUTE), c);
 		}
     }
 

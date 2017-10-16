@@ -1,63 +1,56 @@
 package ChandyLamport;
 
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Observable;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
- * Observable Buffer of each node
+ * Buffer : This class simulates a channel used to share messages between processors
+ * It could be incoming channel for one processor and outgoing channel for another.
+ * It stores a list of messages being passed
+ * @author mayur
  *
- * @author Sample
- * @version 1.0
  */
-//A channel should have a buffer associated with it.
 public class Buffer extends Observable {
-    private String label;
-    private List<Message> messages;
+    String label;
+    private Queue<Message> messages;
+    ThreadRecorder recorder;
 
-    /**
-     * Creates empty buffer
-     */
-    public Buffer() {
-        this.messages = new ArrayList<>();
-    }
-    
-    public List<Message> getMessages(){	
-		return this.messages;
-    }
-    /**
-     * Creates empty buffer
-     */
     public Buffer(String label) {
-        messages = new ArrayList<>();
+        messages = new ConcurrentLinkedDeque<Message>();
         this.label = label;
     }
-
+    
     public String getLabel() {
         return label;
     }
-
-    /**
-     * @return Message from the buffer
-     */
-    public Message getMessage(int index) {
-		return messages.get(index);
-    }
-    /**
-     * Sets the message and notifies the observers with the sender node's information
-     *
-     * @param message Message to be stored in the buffer
-     */
-    public void saveMessage(Message message) {
+    public Queue<Message> getMessages() {
+		return messages;
+	}
+	public void setMessages(Queue<Message> messages) {
+		this.messages = messages;
+	}
+	
+	public Message getMessage() {
+		return this.getMessages().poll();
+	}
+	
+	public Message peekMessage() {
+		return this.getMessages().peek();
+	}
+	
+	public void saveMessage(Message message) {
         this.messages.add(message);
         setChanged();
-        notifyObservers(message);
-        System.out.println("Message of type " + message.getMessageType() +" saved to " + label);
+        notifyObservers();
     }
-
-	int getTotalMessageCount() {
+	
+    public int getTotalMessageCount() {
         return messages.size();
+    }
+    
+    public boolean isEmpty() {
+    	return messages.isEmpty();
     }
 }
 
